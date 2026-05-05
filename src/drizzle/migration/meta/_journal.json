@@ -36,6 +36,34 @@
       "when": 1772497032181,
       "tag": "0004_ambitious_kronos",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1776247882928,
+      "tag": "0005_classy_miek",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1776248409144,
+      "tag": "0006_fast_puppet_master",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "5",
+      "when": 1777533625336,
+      "tag": "0007_dusty_tusk",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "5",
+      "when": 1777534601518,
+      "tag": "0008_spicy_terror",
+      "breakpoints": true
     }
   ]
 }

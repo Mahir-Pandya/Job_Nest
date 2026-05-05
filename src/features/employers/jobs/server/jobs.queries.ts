@@ -139,6 +139,7 @@ export async function getJobById(jobId: number) {
       expiresAt: jobs.expiresAt,
 
       // Employer Info (Joined)
+      employerId: jobs.employerId,
       companyLogo: users.avatarUrl,
       companyName: employers.name,
       companyBio: employers.description, // Good to show "About Company"

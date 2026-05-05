@@ -6,6 +6,9 @@ import {
   Settings,
   Plus,
   User,
+  Users,
+  Building2,
+  MessageSquare
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -55,6 +58,14 @@ export const MIN_EDUCATION = [
   "phd",
 ] as const;
 
+export const APPLICATION_STATUS = [
+  "pending",
+  "reviewed",
+  "shortlisted",
+  "rejected",
+  "hired",
+] as const;
+
 // =====================================================
 // NAVIGATION TYPES
 // =====================================================
@@ -75,7 +86,7 @@ export interface NavItem {
  */
 export const applicantNavItems: NavItem[] = [
   {
-    name: "Home",
+    name: "Dashboard",
     href: "/dashboard",
     icon: LayoutDashboard,
     exact: true, // Exact match only for home
@@ -98,6 +109,11 @@ export const applicantNavItems: NavItem[] = [
     badge: "dynamic", // Will show count of saved jobs
   },
   {
+    name: "Messages",
+    href: "/messages",
+    icon: MessageSquare,
+  },
+  {
     name: "Settings",
     href: "/dashboard/settings",
     icon: Settings,
@@ -116,10 +132,15 @@ export const applicantNavItems: NavItem[] = [
 // =====================================================
 export const employerNavItems: NavItem[] = [
   {
-    name: "Overview",
+    name: "Dashboard",
     href: "/employer-dashboard",
     icon: LayoutDashboard,
-    exact: true, // Exact match for dashboard home
+    exact: true,
+  },
+  {
+    name: "Active Jobs",
+    href: "/employer-dashboard/jobs",
+    icon: Briefcase,
   },
   {
     name: "Applications",
@@ -127,16 +148,19 @@ export const employerNavItems: NavItem[] = [
     icon: User,
   },
   {
-    name: "Post a Job",
-    href: "/employer-dashboard/jobs/create",
-    icon: Plus,
+    name: "Candidates",
+    href: "/employer-dashboard/candidates",
+    icon: Users,
   },
   {
-    name: "My Jobs",
-    href: "/employer-dashboard/jobs",
-    icon: Briefcase,
-    // Note: If your active link logic highlights "My Jobs" when you are on "/jobs/create",
-    // you might need to add `exact: true` here depending on your navigation-utils setup!
+    name: "Company Profile",
+    href: "/employer-dashboard/company-profile",
+    icon: Building2,
+  },
+  {
+    name: "Messages",
+    href: "/messages",
+    icon: MessageSquare,
   },
   {
     name: "Settings",

@@ -14,13 +14,17 @@ import { eq, and } from "drizzle-orm";
 import { getCurrentUser } from "@/features/auth/server/auth.queries";
 import Link from "next/link";
 import { ApplyJobModal } from "@/features/applicants/jobs/components/apply-job-modal";
+import { savedJobs } from "@/drizzle/schema";
+import { SaveJobButton } from "@/features/applicants/components/SaveJobButton";
+
 
 interface EditJobPageProps {
-  params: { jobId: string };
+  params: Promise<{ jobId: string }>;
 }
 
 const JobsDetailedPage = async ({ params }: EditJobPageProps) => {
-  const jobId = parseInt(params.jobId);
+  const { jobId: rawJobId } = await params;
+  const jobId = parseInt(rawJobId);
   if (isNaN(jobId)) return notFound();
 
   const job = await getJobById(jobId);
@@ -29,7 +33,9 @@ const JobsDetailedPage = async ({ params }: EditJobPageProps) => {
   // --- FETCH USER, APPLICATION STATUS, AND RESUMES ---
   const user = await getCurrentUser();
   let hasApplied = false;
+  let isSaved = false;
   let userResumes: { id: number; fileName: string }[] = [];
+
 
   if (user) {
     const existingApplication = await db
@@ -45,7 +51,17 @@ const JobsDetailedPage = async ({ params }: EditJobPageProps) => {
 
     hasApplied = existingApplication.length > 0;
 
+    // Check if job is saved
+    const existingSave = await db
+      .select()
+      .from(savedJobs)
+      .where(and(eq(savedJobs.jobId, jobId), eq(savedJobs.userId, user.id)))
+      .limit(1);
+
+    isSaved = existingSave.length > 0;
+
     // Fetch their resumes for the dropdown
+
     userResumes = await db
       .select({ id: resumes.id, fileName: resumes.fileName })
       .from(resumes)
@@ -76,10 +92,13 @@ const JobsDetailedPage = async ({ params }: EditJobPageProps) => {
               {job.title}
             </h1>
             <div className="flex flex-wrap items-center gap-3 text-sm text-gray-500">
-              <span className="font-medium text-blue-600 flex items-center gap-1">
+              <Link 
+                href={`/companies/${job.employerId}`}
+                className="font-medium text-blue-600 flex items-center gap-1 hover:underline"
+              >
                 <Building2 className="h-4 w-4" />
                 {job.companyName}
-              </span>
+              </Link>
               <span className="hidden sm:inline">•</span>
               <span className="flex items-center gap-1">
                 <MapPin className="h-4 w-4" />
@@ -100,13 +119,17 @@ const JobsDetailedPage = async ({ params }: EditJobPageProps) => {
         {/* -- INTERACTIVE ACTION BUTTON --- */}
         <div className="flex gap-3 w-full md:w-auto mt-4 md:mt-0">
           {user ? (
-            <ApplyJobModal
-              jobId={jobId}
-              jobTitle={job.title}
-              hasApplied={hasApplied}
-              resumes={userResumes}
-            />
+            <>
+              <ApplyJobModal
+                jobId={jobId}
+                jobTitle={job.title}
+                hasApplied={hasApplied}
+                resumes={userResumes}
+              />
+              <SaveJobButton jobId={jobId} initialIsSaved={isSaved} />
+            </>
           ) : (
+
             <Button
               size="lg"
               className="w-full md:w-auto font-semibold"

@@ -71,7 +71,7 @@ const JobOverviewSidebar = ({ job }: JobSidebarProps) => {
             {/* <p className="text-sm text-gray-600 line-clamp-4">
                     {job.companyBio || "No company description available."}
                   </p> */}
-            <p
+            <div
               className="text-sm text-gray-600 line-clamp-4 prose prose-sm"
               dangerouslySetInnerHTML={{
                 __html: job.companyBio || "No company description available.",

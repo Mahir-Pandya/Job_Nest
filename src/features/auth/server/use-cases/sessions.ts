@@ -66,8 +66,10 @@ export const createSessionAndSetCookies = async (
   const cookieStore = await cookies();
 
   cookieStore.set("session", token, {
-    secure: true,
+    secure: process.env.NODE_ENV === "production",
     httpOnly: true,
+    sameSite: "lax",
+    path: "/",
     maxAge: SESSION_LIFETIME,
   });
 };
@@ -103,13 +105,13 @@ export const validateSessionAndGetUser = async (session: string) => {
 
   if (!user) return null;
 
-  // 2:
+  // 2: Check expiration
   if (Date.now() >= user.session.expiresAt.getTime()) {
     await invalidateSession(user.session.id);
     return null;
   }
-  // console.log(expiresAt.getTime()); // 1764562512000
 
+  // Refresh session if needed
   if (
     Date.now() >=
     user.session.expiresAt.getTime() - SESSION_REFRESH_TIME * 1000
@@ -121,6 +123,7 @@ export const validateSessionAndGetUser = async (session: string) => {
       })
       .where(eq(sessions.id, user.session.id));
   }
+
   return user;
 };
 

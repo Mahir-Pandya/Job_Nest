@@ -6,9 +6,10 @@ import {
   ApplicantSettingsSchema,
 } from "../applicant.schema";
 import { db } from "@/config/db";
-import { applicants, resumes, users } from "@/drizzle/schema";
-import { eq } from "drizzle-orm";
+import { applicants, resumes, savedJobs, users } from "@/drizzle/schema";
+import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+
 
 export const saveApplicantProfile = async (data: ApplicantSettingsSchema) => {
   try {
@@ -125,3 +126,35 @@ export const saveApplicantProfile = async (data: ApplicantSettingsSchema) => {
     return { status: "ERROR", message: "Failed to save Profile." };
   }
 };
+
+export const toggleSaveJobAction = async (jobId: number) => {
+  try {
+    const user = await getCurrentUser();
+    if (!user) return { status: "ERROR", message: "Unauthorized" };
+
+    const existingSave = await db
+      .select()
+      .from(savedJobs)
+      .where(and(eq(savedJobs.userId, user.id), eq(savedJobs.jobId, jobId)))
+      .limit(1);
+
+    if (existingSave.length > 0) {
+      await db.delete(savedJobs).where(eq(savedJobs.id, existingSave[0].id));
+      revalidatePath(`/jobs/${jobId}`);
+      revalidatePath("/dashboard/saved-jobs");
+      return { status: "SUCCESS", message: "Job removed from saved list" };
+    } else {
+      await db.insert(savedJobs).values({
+        userId: user.id,
+        jobId,
+      });
+      revalidatePath(`/jobs/${jobId}`);
+      revalidatePath("/dashboard/saved-jobs");
+      return { status: "SUCCESS", message: "Job saved successfully" };
+    }
+  } catch (error) {
+    console.error("TOGGLE SAVE JOB ERROR:", error);
+    return { status: "ERROR", message: "Failed to update saved jobs" };
+  }
+};
+

@@ -1,11 +1,13 @@
 import Link from "next/link";
-import { Briefcase, LogOut } from "lucide-react"; // Import LogOut icon
+import { Briefcase, LogOut, MessageSquare } from "lucide-react"; // Import LogOut icon
 import { Button } from "@/components/ui/button";
 import { getCurrentUser } from "@/features/auth/server/auth.queries";
 import { logoutUserAction } from "@/features/auth/server/auth.actions";
+import { getUnreadMessageCount } from "@/features/messages/server/messages.queries";
 
 export default async function Navbar() {
   const user = await getCurrentUser();
+  const unreadCount = user ? await getUnreadMessageCount(user.id) : 0;
 
   return (
     <header className="border-b bg-white sticky top-0 z-50">
@@ -14,8 +16,7 @@ export default async function Navbar() {
           href="/"
           className="flex items-center gap-2 font-bold text-xl text-blue-600"
         >
-          <Briefcase className="w-6 h-6" />
-          thapajob
+          🎓 JobNest
         </Link>
 
         <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-gray-600">
@@ -25,8 +26,8 @@ export default async function Navbar() {
           <Link href="/jobs" className="hover:text-blue-600 transition-colors">
             Find Job
           </Link>
-          <Link href="/" className="hover:text-blue-600 transition-colors">
-            Employers
+          <Link href="/companies" className="hover:text-blue-600 transition-colors">
+            Companies
           </Link>
         </nav>
 
@@ -38,7 +39,7 @@ export default async function Navbar() {
               </Button>
               <Button asChild>
                 <Link href="/register">Post a Job</Link>
-              </Button>
+              </Button> 
             </>
           ) : (
             <>
@@ -51,6 +52,17 @@ export default async function Navbar() {
                   }
                 >
                   Dashboard
+                </Link>
+              </Button>
+
+              <Button asChild variant="ghost" size="icon" className="relative mr-1">
+                <Link href="/messages" title="Messages">
+                  <MessageSquare className="w-5 h-5 text-gray-600 hover:text-blue-600 transition-colors" />
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold h-4 w-4 flex items-center justify-center rounded-full animate-in fade-in zoom-in duration-200">
+                      {unreadCount > 9 ? "9+" : unreadCount}
+                    </span>
+                  )}
                 </Link>
               </Button>
 

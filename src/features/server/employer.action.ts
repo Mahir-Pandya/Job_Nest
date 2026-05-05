@@ -2,9 +2,12 @@
 
 import { db } from "@/config/db";
 import { getCurrentUser } from "../auth/server/auth.queries";
-import { employers, users } from "@/drizzle/schema";
-import { eq } from "drizzle-orm";
+import { employers, jobApplications, jobs, savedCandidates, users } from "@/drizzle/schema";
+import { and, eq } from "drizzle-orm";
 import { EmployerProfileData } from "../employers/employers.schema";
+import { APPLICATION_STATUS } from "@/config/constant";
+import { revalidatePath } from "next/cache";
+
 
 // const organizationTypeOptions = [
 //   "development",
@@ -82,3 +85,82 @@ export const updateEmployerProfileAction = async (
     };
   }
 };
+
+export const updateApplicationStatusAction = async (
+  applicationId: number,
+  status: (typeof APPLICATION_STATUS)[number]
+) => {
+  try {
+    const currentUser = await getCurrentUser();
+    if (!currentUser || currentUser.role !== "employer") {
+      return { status: "ERROR", message: "Unauthorized" };
+    }
+
+    // Security check: ensure the application belongs to a job posted by this employer
+    const [application] = await db
+      .select({ id: jobApplications.id })
+      .from(jobApplications)
+      .innerJoin(jobs, eq(jobApplications.jobId, jobs.id))
+      .where(
+        and(
+          eq(jobApplications.id, applicationId),
+          eq(jobs.employerId, currentUser.id)
+        )
+      );
+
+    if (!application) {
+      return { status: "ERROR", message: "Application not found" };
+    }
+
+    await db
+      .update(jobApplications)
+      .set({ status })
+      .where(eq(jobApplications.id, applicationId));
+
+    revalidatePath("/employer-dashboard/applications");
+
+    return { status: "SUCCESS", message: "Status updated successfully" };
+  } catch (error) {
+    return { status: "ERROR", message: "Failed to update status" };
+  }
+};
+
+export const toggleSaveCandidateAction = async (applicantId: number) => {
+  try {
+    const currentUser = await getCurrentUser();
+    if (!currentUser || currentUser.role !== "employer") {
+      return { status: "ERROR", message: "Unauthorized" };
+    }
+
+    const existing = await db
+      .select()
+      .from(savedCandidates)
+      .where(
+        and(
+          eq(savedCandidates.employerId, currentUser.id),
+          eq(savedCandidates.applicantId, applicantId)
+        )
+      )
+      .limit(1);
+
+    if (existing.length > 0) {
+      await db
+        .delete(savedCandidates)
+        .where(eq(savedCandidates.id, existing[0].id));
+      revalidatePath("/employer-dashboard/candidates");
+      revalidatePath("/employer-dashboard/applications");
+      return { status: "SUCCESS", message: "Candidate removed from saved list" };
+    } else {
+      await db.insert(savedCandidates).values({
+        employerId: currentUser.id,
+        applicantId,
+      });
+      revalidatePath("/employer-dashboard/candidates");
+      revalidatePath("/employer-dashboard/applications");
+      return { status: "SUCCESS", message: "Candidate saved successfully" };
+    }
+  } catch (error) {
+    return { status: "ERROR", message: "Failed to update saved candidates" };
+  }
+};
+

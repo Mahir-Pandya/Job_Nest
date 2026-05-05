@@ -1,10 +1,20 @@
 import type { NextConfig } from "next";
-
+ 
 const nextConfig: NextConfig = {
-  /* config options here */
   images: {
-    remotePatterns: [{ hostname: "we2plp04mq.ufs.sh", protocol: "https" }],
+    remotePatterns: [
+      {
+        // Covers all UploadThing app subdomains (*.ufs.sh)
+        protocol: "https",
+        hostname: "**.ufs.sh",
+      },
+      {
+        // UploadThing legacy CDN
+        protocol: "https",
+        hostname: "utfs.io",
+      },
+    ],
   },
 };
-
+ 
 export default nextConfig;

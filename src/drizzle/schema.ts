@@ -18,6 +18,8 @@ import {
   year,
   boolean,
 } from "drizzle-orm/mysql-core";
+import { APPLICATION_STATUS } from "@/config/constant";
+
 
 export const users = mysqlTable("users", {
   id: int("id").autoincrement().primaryKey(),
@@ -153,8 +155,46 @@ export const jobApplications = mysqlTable("job_applications", {
   coverLetter: text("cover_letter"),
 
   // You can add a status enum later if you want employers to "accept/reject"
-  // status: mysqlEnum("status", ["pending", "reviewed", "rejected"]).default("pending"),
+  status: mysqlEnum("status", APPLICATION_STATUS).default("pending").notNull(),
   appliedAt: timestamp("applied_at").defaultNow().notNull(),
+});
+
+export const savedJobs = mysqlTable("saved_jobs", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  jobId: int("job_id")
+    .notNull()
+    .references(() => jobs.id, { onDelete: "cascade" }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const savedCandidates = mysqlTable("saved_candidates", {
+  id: int("id").autoincrement().primaryKey(),
+  employerId: int("employer_id")
+    .notNull()
+    .references(() => employers.id, { onDelete: "cascade" }),
+  applicantId: int("applicant_id")
+    .notNull()
+    .references(() => applicants.id, { onDelete: "cascade" }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+
+
+
+export const messages = mysqlTable("messages", {
+  id: int("id").autoincrement().primaryKey(),
+  senderId: int("sender_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  receiverId: int("receiver_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  content: text("content").notNull(),
+  isRead: boolean("is_read").default(false).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
 export const jobApplicationsRelations = relations(
@@ -175,6 +215,19 @@ export const jobApplicationsRelations = relations(
   }),
 );
 
+export const messagesRelations = relations(messages, ({ one }) => ({
+  sender: one(users, {
+    fields: [messages.senderId],
+    references: [users.id],
+    relationName: "sentMessages",
+  }),
+  receiver: one(users, {
+    fields: [messages.receiverId],
+    references: [users.id],
+    relationName: "receivedMessages",
+  }),
+}));
+
 export const resumesRelations = relations(resumes, ({ one }) => ({
   applicant: one(applicants, {
     fields: [resumes.applicantId],
@@ -194,13 +247,6 @@ export const jobsRelations = relations(jobs, ({ one }) => ({
   }),
 }));
 
-// relations(TABLE_NAME, (helpers) => ({
-//   relationName: relationType(OTHER_TABLE, {
-//     fields: [CURRENT_TABLE.column],
-//     references: [OTHER_TABLE.column],
-//   }),
-// }));
-
 // Relations definitions
 export const usersRelations = relations(users, ({ one, many }) => ({
   // One user can have one employer profile (if role is employer)
@@ -215,6 +261,8 @@ export const usersRelations = relations(users, ({ one, many }) => ({
   }),
   // One user can have many sessions
   sessions: many(sessions),
+  sentMessages: many(messages, { relationName: "sentMessages" }),
+  receivedMessages: many(messages, { relationName: "receivedMessages" }),
 }));
 
 export const sessionsRelations = relations(sessions, ({ one }) => ({
@@ -224,3 +272,26 @@ export const sessionsRelations = relations(sessions, ({ one }) => ({
     references: [users.id],
   }),
 }));
+
+export const savedJobsRelations = relations(savedJobs, ({ one }) => ({
+  user: one(users, {
+    fields: [savedJobs.userId],
+    references: [users.id],
+  }),
+  job: one(jobs, {
+    fields: [savedJobs.jobId],
+    references: [jobs.id],
+  }),
+}));
+
+export const savedCandidatesRelations = relations(savedCandidates, ({ one }) => ({
+  employer: one(employers, {
+    fields: [savedCandidates.employerId],
+    references: [employers.id],
+  }),
+  applicant: one(applicants, {
+    fields: [savedCandidates.applicantId],
+    references: [applicants.id],
+  }),
+}));
+

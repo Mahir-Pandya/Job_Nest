@@ -107,7 +107,7 @@ function LinkComponent({
 
   return (
     <Popover open={isLinkPopoverOpen} onOpenChange={setIsLinkPopoverOpen}>
-      <PopoverTrigger>{children}</PopoverTrigger>
+      <PopoverTrigger asChild>{children}</PopoverTrigger>
       {/* // this is the main */}
       {/* trigger point */}
       <PopoverContent className="w-80 p-4">

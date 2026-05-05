@@ -3,11 +3,12 @@ import { getJobByIdAction } from "@/features/server/jobs.actions";
 import { redirect } from "next/navigation";
 
 interface EditJobPageProps {
-  params: { jobId: string };
+  params: Promise<{ jobId: string }>;
 }
 
 export const EditJobPage = async ({ params }: EditJobPageProps) => {
-  const jobId = Number(params.jobId);
+  const { jobId: rawJobId } = await params;
+  const jobId = Number(rawJobId);
 
   // if (Number.isNaN(jobId)) {
   //   throw new Error("Invalid job ID");

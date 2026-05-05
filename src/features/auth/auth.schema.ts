@@ -66,3 +66,23 @@ export const loginUserSchema = z.object({
 });
 
 export type LoginUserData = z.infer<typeof loginUserSchema>;
+
+
+// ── Change Password (logged-in user) ─────────────────────────────────────────
+export const changePasswordSchema = z
+  .object({
+    currentPassword: z.string().min(1, "Current password is required"),
+    newPassword: z
+      .string()
+      .min(8, "New password must be at least 8 characters long")
+      .regex(
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
+        "Password must contain at least one lowercase letter, one uppercase letter, and one number",
+      ),
+    confirmNewPassword: z.string(),
+  })
+  .refine((d) => d.newPassword === d.confirmNewPassword, {
+    message: "Passwords don't match",
+    path: ["confirmNewPassword"],
+  });
+export type ChangePasswordData = z.infer<typeof changePasswordSchema>;

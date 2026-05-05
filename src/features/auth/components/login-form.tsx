@@ -1,6 +1,6 @@
 "use client";
 
-import React, { ChangeEvent, FormEvent, useState } from "react";
+import React, { useState } from "react";
 import { Input } from "@/components/ui/input";
 import {
   Card,
@@ -18,12 +18,14 @@ import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LoginUserData, loginUserSchema } from "@/features/auth/auth.schema";
+import { useRouter } from "next/navigation";
 
 const LoginForm: React.FC = () => {
+  const router = useRouter();
+
   const {
     register,
     handleSubmit,
-    watch,
     formState: { errors },
   } = useForm({
     resolver: zodResolver(loginUserSchema),
@@ -35,8 +37,14 @@ const LoginForm: React.FC = () => {
     try {
       const result = await loginUserAction(data);
 
-      if (result.status === "SUCCESS") toast.success(result.message);
-      else toast.error(result.message);
+      if (result.status === "SUCCESS") {
+        toast.success(result.message);
+        // Explicit navigation by role — prevents implicit router.refresh() loop
+        if (result.role === "employer") router.push("/employer-dashboard");
+        else router.push("/dashboard");
+      } else {
+        toast.error(result.message);
+      }
     } catch (error) {}
   };
 
@@ -111,21 +119,31 @@ const LoginForm: React.FC = () => {
                   {errors.password.message}
                 </p>
               )}
+              {/* Forgot Password link — temporarily disabled
+              <div className="flex justify-end">
+                <Link
+                  href="/forgot-password"
+                  className="text-xs text-muted-foreground hover:text-primary transition-colors"
+                >
+                  Forgot password?
+                </Link>
+              </div>
+              */}
             </div>
 
             {/* Submit Button */}
             <Button type="submit" className="w-full">
-              Create Account
+              Sign In
             </Button>
 
             <div className="text-center">
               <p className="text-sm text-muted-foreground">
-                Already have an account?
+                Don&apos;t have an account?{" "}
                 <Link
                   href="/register"
                   className="text-primary hover:text-primary/80 font-medium underline-offset-4 hover:underline"
                 >
-                  Sign in here
+                  Sign up here
                 </Link>
               </p>
             </div>
