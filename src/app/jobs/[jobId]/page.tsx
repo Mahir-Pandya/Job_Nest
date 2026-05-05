@@ -1,3 +1,4 @@
+import type { Metadata, ResolvingMetadata } from "next";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import { formatDistanceToNow } from "date-fns";
@@ -20,6 +21,37 @@ import { SaveJobButton } from "@/features/applicants/components/SaveJobButton";
 
 interface EditJobPageProps {
   params: Promise<{ jobId: string }>;
+}
+
+export async function generateMetadata(
+  { params }: EditJobPageProps,
+  parent: ResolvingMetadata
+): Promise<Metadata> {
+  const { jobId: rawJobId } = await params;
+  const jobId = parseInt(rawJobId);
+  if (isNaN(jobId)) return { title: "Job Not Found" };
+
+  const job = await getJobById(jobId);
+  if (!job) return { title: "Job Not Found" };
+
+  const previousImages = (await parent).openGraph?.images || [];
+  const ogImage = job.companyLogo ? [job.companyLogo, ...previousImages] : previousImages;
+
+  return {
+    title: job.title,
+    description: `Apply for ${job.title} at ${job.companyName} in ${job.location || 'Remote'}.`,
+    openGraph: {
+      title: `${job.title} at ${job.companyName}`,
+      description: `Apply for ${job.title} at ${job.companyName} in ${job.location || 'Remote'}.`,
+      images: ogImage,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${job.title} at ${job.companyName}`,
+      description: `Apply for ${job.title} at ${job.companyName} in ${job.location || 'Remote'}.`,
+      images: ogImage,
+    },
+  };
 }
 
 const JobsDetailedPage = async ({ params }: EditJobPageProps) => {

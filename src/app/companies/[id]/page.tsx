@@ -1,3 +1,4 @@
+import type { Metadata, ResolvingMetadata } from "next";
 import { getEmployerById } from "@/features/server/employers.queries";
 import { notFound } from "next/navigation";
 import Image from "next/image";
@@ -20,6 +21,39 @@ import { format } from "date-fns";
 
 interface CompanyProfilePageProps {
   params: Promise<{ id: string }>;
+}
+
+export async function generateMetadata(
+  { params }: CompanyProfilePageProps,
+  parent: ResolvingMetadata
+): Promise<Metadata> {
+  const { id: rawId } = await params;
+  const id = parseInt(rawId);
+  if (isNaN(id)) return { title: "Company Not Found" };
+
+  const data = await getEmployerById(id);
+  if (!data) return { title: "Company Not Found" };
+
+  const { employer, user } = data;
+  const previousImages = (await parent).openGraph?.images || [];
+  const ogImage = user.avatarUrl ? [user.avatarUrl, ...previousImages] : previousImages;
+  const description = employer.description ? employer.description.substring(0, 160).replace(/<[^>]+>/g, '') : `View ${employer.name}'s company profile and open jobs on JobNest.`;
+
+  return {
+    title: employer.name || "Company Profile",
+    description: description,
+    openGraph: {
+      title: employer.name || "Company Profile",
+      description: description,
+      images: ogImage,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: employer.name || "Company Profile",
+      description: description,
+      images: ogImage,
+    },
+  };
 }
 
 export default async function CompanyProfilePage({ params }: CompanyProfilePageProps) {
