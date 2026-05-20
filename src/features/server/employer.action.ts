@@ -117,7 +117,7 @@ export const updateApplicationStatusAction = async (
       .set({ status })
       .where(eq(jobApplications.id, applicationId));
 
-    revalidatePath("/employer-dashboard/applications");
+    revalidatePath("/dashboard/applications");
 
     return { status: "SUCCESS", message: "Status updated successfully" };
   } catch (error) {
@@ -147,16 +147,16 @@ export const toggleSaveCandidateAction = async (applicantId: number) => {
       await db
         .delete(savedCandidates)
         .where(eq(savedCandidates.id, existing[0].id));
-      revalidatePath("/employer-dashboard/candidates");
-      revalidatePath("/employer-dashboard/applications");
+      revalidatePath("/dashboard/candidates");
+      revalidatePath("/dashboard/applications");
       return { status: "SUCCESS", message: "Candidate removed from saved list" };
     } else {
       await db.insert(savedCandidates).values({
         employerId: currentUser.id,
         applicantId,
       });
-      revalidatePath("/employer-dashboard/candidates");
-      revalidatePath("/employer-dashboard/applications");
+      revalidatePath("/dashboard/candidates");
+      revalidatePath("/dashboard/applications");
       return { status: "SUCCESS", message: "Candidate saved successfully" };
     }
   } catch (error) {

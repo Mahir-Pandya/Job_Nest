@@ -113,7 +113,7 @@ export function RecentApplications({
 
             {/* View All Link */}
             <Link
-              href="/employer-dashboard/applications"
+              href="/dashboard/applications"
               className="block text-center text-sm text-orange-600 hover:text-orange-700 font-medium pt-2 transition-colors"
             >
               View all applications →

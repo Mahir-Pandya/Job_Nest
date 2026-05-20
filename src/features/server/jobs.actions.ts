@@ -137,7 +137,7 @@ export const updateJobAction = async (jobId: number, values: any) => {
       .where(and(eq(jobs.id, jobId), eq(jobs.employerId, currentUser.id)));
 
     // Refresh the jobs list page so the new data shows up immediately
-    // revalidatePath("/employer-dashboard/jobs");
+    // revalidatePath("/dashboard/jobs");
 
     return { status: "SUCCESS", message: "Job updated successfully" };
   } catch (error) {

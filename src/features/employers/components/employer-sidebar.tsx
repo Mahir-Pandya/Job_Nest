@@ -22,7 +22,7 @@ const EmployerSidebar = ({ userName, unreadCount = 0 }: EmployerSidebarProps) =>
       {/* Brand / Logo */}
       <div className="px-6 py-5">
         <Link
-          href="/employer-dashboard"
+          href="/dashboard"
           className="flex items-center gap-2 group"
         >
           <span className="text-xl font-bold text-gray-900 tracking-tight transition-colors">

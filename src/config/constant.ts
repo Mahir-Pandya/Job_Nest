@@ -125,7 +125,7 @@ export const applicantNavItems: NavItem[] = [
 // =====================================================
 /**
  * Employer Dashboard Navigation Items
- * Based on folder structure: app/employer-dashboard/
+ * Based on folder structure: app/dashboard/
  */
 // =====================================================
 // EMPLOYER DASHBOARD NAVIGATION
@@ -133,28 +133,28 @@ export const applicantNavItems: NavItem[] = [
 export const employerNavItems: NavItem[] = [
   {
     name: "Dashboard",
-    href: "/employer-dashboard",
+    href: "/dashboard",
     icon: LayoutDashboard,
     exact: true,
   },
   {
     name: "Active Jobs",
-    href: "/employer-dashboard/jobs",
+    href: "/dashboard/jobs",
     icon: Briefcase,
   },
   {
     name: "Applications",
-    href: "/employer-dashboard/applications",
+    href: "/dashboard/applications",
     icon: User,
   },
   {
     name: "Candidates",
-    href: "/employer-dashboard/candidates",
+    href: "/dashboard/candidates",
     icon: Users,
   },
   {
     name: "Company Profile",
-    href: "/employer-dashboard/company-profile",
+    href: "/dashboard/company-profile",
     icon: Building2,
   },
   {
@@ -164,7 +164,7 @@ export const employerNavItems: NavItem[] = [
   },
   {
     name: "Settings",
-    href: "/employer-dashboard/settings",
+    href: "/dashboard/settings",
     icon: Settings,
   },
 ];

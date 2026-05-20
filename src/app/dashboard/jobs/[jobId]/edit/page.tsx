@@ -14,7 +14,7 @@ export const EditJobPage = async ({ params }: EditJobPageProps) => {
   //   throw new Error("Invalid job ID");
   // } ❌
 
-  if (Number.isNaN(jobId)) redirect("/employer-dashboard/jobs");
+  if (Number.isNaN(jobId)) redirect("/dashboard/jobs");
 
   // 1. Fetch Data
   const { status, data: job } = await getJobByIdAction(jobId);
@@ -22,7 +22,7 @@ export const EditJobPage = async ({ params }: EditJobPageProps) => {
 
   // 2. Handle Errors (e.g., user manually types a random ID)
   if (status === "ERROR" || !job) {
-    redirect("/employer-dashboard/jobs");
+    redirect("/dashboard/jobs");
   }
 
   return (

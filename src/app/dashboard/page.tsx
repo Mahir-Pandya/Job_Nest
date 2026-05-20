@@ -5,23 +5,69 @@ import { ArrowRight, Search } from "lucide-react";
 import { getCurrentUser } from "@/features/auth/server/auth.queries";
 import {
   getApplicantDashboardStats,
-  getApplicantProfileData,
 } from "@/features/applicants/server/applicant.queries";
 import { ApplicantStats } from "@/features/applicants/components/applicant-stats";
 import { ApplicantProfileStatus } from "@/features/applicants/components/applicant-profile-status";
-import { RecentApplications } from "@/features/applicants/components/recent-applications";
+import { RecentApplications as ApplicantRecentApplications } from "@/features/applicants/components/recent-applications";
 import { Button } from "@/components/ui/button";
 
-export default async function ApplicantDashboard() {
+import { EmployerProfileCompletionStatus } from "@/features/employers/components/employer-profile-status";
+import { StatsCards as EmployerStatsCards } from "@/features/employers/components/employer-stats";
+import { RecentApplications as EmployerRecentApplications } from "@/features/employers/components/recent-applications";
+import { HiringChecklist } from "@/features/employers/components/hiring-checklist";
+import {
+  getCurrentEmployerDetails,
+  getEmployerDashboardStats,
+} from "@/features/server/employers.queries";
+
+export default async function DashboardPage() {
   const user = await getCurrentUser();
   if (!user) return redirect("/login");
 
-  const [stats, profileData] = await Promise.all([
+  const firstName = user.name.split(" ")[0];
+
+  if (user.role === "employer") {
+    const employer = await getCurrentEmployerDetails();
+    if (!employer) return redirect("/login");
+
+    const stats = await getEmployerDashboardStats(user.id);
+
+    return (
+      <div className="space-y-6 max-w-6xl">
+        {/* Welcome Section */}
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">
+            Welcome back,{" "}
+            <span className="capitalize">{firstName.toLowerCase()}</span>!
+          </h1>
+          <p className="text-gray-500 mt-1">
+            Here&apos;s an overview of your hiring progress today.
+          </p>
+        </div>
+
+        {/* Profile Incomplete Alert */}
+        <EmployerProfileCompletionStatus />
+
+        {/* Stats Cards */}
+        <EmployerStatsCards stats={stats} />
+
+        {/* Bottom Grid: Recent Applications + Hiring Checklist */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <EmployerRecentApplications applications={stats.recentApplications} />
+          <HiringChecklist
+            isProfileCompleted={!!employer.isProfileCompleted}
+            pendingCount={stats.pendingCount}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  // Applicant Dashboard
+  const [stats] = await Promise.all([
     getApplicantDashboardStats(user.id),
-    getApplicantProfileData(user.id),
   ]);
 
-  const firstName = user.name.split(" ")[0];
   const currentHour = new Date().getHours();
   const greeting =
     currentHour < 12
@@ -38,7 +84,7 @@ export default async function ApplicantDashboard() {
         <div className="absolute -top-10 -right-10 h-48 w-48 rounded-full bg-white/5 blur-2xl" />
         <div className="absolute bottom-0 left-1/3 h-32 w-32 rounded-full bg-white/5 blur-xl" />
 
-        <div className="relative flex flex-col md:flex-row md:items-center md:justify-between gap-6 max-w-5xl">
+        <div className="relative flex flex-col md:flex-row md:items-center md:justify-between gap-6 max-w-5xl mx-auto">
           <div>
             <p className="text-violet-200 text-sm font-medium mb-1">{greeting} 👋</p>
             <h1 className="text-3xl font-bold text-white tracking-tight">
@@ -109,7 +155,7 @@ export default async function ApplicantDashboard() {
         </div>
 
         {/* Recent Applications Table */}
-        <RecentApplications />
+        <ApplicantRecentApplications />
       </div>
     </div>
   );

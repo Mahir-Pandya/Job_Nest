@@ -25,7 +25,8 @@ export const users = mysqlTable("users", {
   id: int("id").autoincrement().primaryKey(),
   name: varchar("name", { length: 255 }).notNull(),
   userName: varchar("username", { length: 255 }).unique().notNull(),
-  password: text("password").notNull(),
+  password: text("password"),
+  googleId: varchar("google_id", { length: 255 }).unique(),
   email: varchar("email", { length: 255 }).notNull().unique(),
   role: mysqlEnum("role", ["admin", "applicant", "employer"])
     .default("applicant")

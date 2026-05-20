@@ -96,7 +96,7 @@ test.describe("Login", () => {
 
   test("employer: redirects to employer dashboard on success", async ({ page }) => {
     await loginAs(page, TEST_EMPLOYER.email, TEST_EMPLOYER.password);
-    await expect(page).toHaveURL(/employer-dashboard/i, { timeout: 10_000 });
+    await expect(page).toHaveURL(/dashboard/i, { timeout: 10_000 });
   });
 });
 
@@ -108,8 +108,8 @@ test.describe("Protected routes", () => {
     await expect(page).toHaveURL(/login/, { timeout: 8_000 });
   });
 
-  test("unauthenticated user visiting /employer-dashboard is redirected to /login", async ({ page }) => {
-    await page.goto("/employer-dashboard");
+  test("unauthenticated user visiting /dashboard is redirected to /login", async ({ page }) => {
+    await page.goto("/dashboard");
     await expect(page).toHaveURL(/login/, { timeout: 8_000 });
   });
 

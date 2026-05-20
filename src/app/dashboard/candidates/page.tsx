@@ -21,7 +21,7 @@ export default async function CandidatesPage() {
           Candidates you&apos;ve bookmarked for future reference. Save candidates from
           the{" "}
           <a
-            href="/employer-dashboard/applications"
+            href="/dashboard/applications"
             className="text-orange-600 hover:text-orange-700 font-medium underline underline-offset-2"
           >
             Applications
@@ -43,7 +43,7 @@ export default async function CandidatesPage() {
             appear here for quick access.
           </p>
           <Button asChild className="mt-6 bg-orange-500 hover:bg-orange-600">
-            <a href="/employer-dashboard/applications">Browse Applications</a>
+            <a href="/dashboard/applications">Browse Applications</a>
           </Button>
         </div>
       ) : (

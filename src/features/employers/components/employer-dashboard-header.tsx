@@ -22,7 +22,7 @@ export function EmployerDashboardHeader({
             asChild
             className="bg-orange-500 hover:bg-orange-600 text-white gap-2 rounded-full px-5 shadow-sm shadow-orange-200 transition-all duration-200 hover:shadow-md hover:shadow-orange-200"
           >
-            <Link href="/employer-dashboard/jobs/create">
+            <Link href="/dashboard/jobs/create">
               <Plus className="h-4 w-4" />
               Post a Job
             </Link>

@@ -52,7 +52,7 @@ export default async function CompanyProfilePage() {
           asChild
           className="bg-orange-500 hover:bg-orange-600 text-white gap-2 rounded-lg"
         >
-          <Link href="/employer-dashboard/settings">
+          <Link href="/dashboard/settings">
             <Pencil className="h-4 w-4" />
             Edit Profile
           </Link>
@@ -157,7 +157,7 @@ export default async function CompanyProfilePage() {
                 asChild
                 className="bg-orange-500 hover:bg-orange-600 text-white"
               >
-                <Link href="/employer-dashboard/settings">
+                <Link href="/dashboard/settings">
                   Complete Profile
                 </Link>
               </Button>

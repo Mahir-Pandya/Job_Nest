@@ -176,3 +176,71 @@ export const changePasswordAction = async (data: ChangePasswordData) => {
     return { status: "ERROR", message: "Something went wrong. Please try again." };
   }
 };
+
+// ── Complete Google OAuth Signup ──────────────────────────────────────────────
+export const completeGoogleSignupAction = async (role: "applicant" | "employer") => {
+  try {
+    const cookieStore = await cookies();
+    const payloadBase64 = cookieStore.get("google_oauth_pending_user")?.value;
+
+    if (!payloadBase64) {
+      return { status: "ERROR", message: "OAuth session expired. Please try again." };
+    }
+
+    const payload = JSON.parse(Buffer.from(payloadBase64, "base64").toString("utf8"));
+    const { data: pendingUserData, signature } = payload;
+
+    const expectedSignature = crypto
+      .createHmac("sha256", process.env.GOOGLE_CLIENT_SECRET || "fallback_secret")
+      .update(pendingUserData)
+      .digest("hex");
+
+    if (signature !== expectedSignature) {
+      return { status: "ERROR", message: "Invalid OAuth session data." };
+    }
+
+    const { googleId, email, name, avatarUrl } = JSON.parse(pendingUserData);
+
+    // Generate unique username
+    const baseUsername = email.split("@")[0].replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
+    const uniqueSuffix = Math.floor(1000 + Math.random() * 9000);
+    const userName = `${baseUsername}${uniqueSuffix}`;
+
+    let newUserId: number = 0;
+
+    await db.transaction(async (tx) => {
+      const [result] = await tx.insert(users).values({
+        googleId,
+        email,
+        name,
+        userName,
+        avatarUrl,
+        role: role,
+      });
+
+      newUserId = result.insertId;
+
+      if (role === "employer") {
+        await tx.insert(employers).values({ id: newUserId });
+      } else {
+        await tx.insert(applicants).values({ id: newUserId });
+      }
+
+      await createSessionAndSetCookies(newUserId, tx);
+    });
+
+    cookieStore.delete("google_oauth_pending_user");
+
+    return {
+      status: "SUCCESS",
+      message: "Registration successful!",
+      role,
+    };
+  } catch (error) {
+    console.error("Complete Google Signup Error:", error);
+    return {
+      status: "ERROR",
+      message: "An error occurred during registration.",
+    };
+  }
+};

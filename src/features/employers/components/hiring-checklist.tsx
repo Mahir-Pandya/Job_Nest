@@ -19,7 +19,7 @@ export function HiringChecklist({
       completed: isProfileCompleted,
       action: {
         label: "Update",
-        href: "/employer-dashboard/settings",
+        href: "/dashboard/settings",
       },
     },
     {
@@ -31,7 +31,7 @@ export function HiringChecklist({
       completed: pendingCount === 0,
       action: {
         label: "Review",
-        href: "/employer-dashboard/applications",
+        href: "/dashboard/applications",
       },
     },
   ];

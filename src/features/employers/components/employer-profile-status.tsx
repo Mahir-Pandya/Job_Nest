@@ -30,7 +30,7 @@ export async function EmployerProfileCompletionStatus() {
         asChild
         className="bg-orange-500 hover:bg-orange-600 text-white rounded-lg px-5 shadow-sm shrink-0"
       >
-        <Link href="/employer-dashboard/settings">Complete Profile</Link>
+        <Link href="/dashboard/settings">Complete Profile</Link>
       </Button>
     </div>
   );

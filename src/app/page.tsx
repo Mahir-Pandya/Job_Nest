@@ -173,7 +173,7 @@ export default async function HomePage() {
                   className="rounded-xl px-8 h-14 bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-100"
                   asChild
                 >
-                  <Link href="/employer-dashboard">
+                  <Link href="/dashboard">
                     Go to Dashboard
                     <ArrowRight className="ml-2 w-5 h-5" />
                   </Link>
@@ -184,9 +184,7 @@ export default async function HomePage() {
                   className="rounded-xl px-8 h-14 border-gray-200"
                   asChild
                 >
-                  <Link href="/employer-dashboard/jobs/create">
-                    Post a New Job
-                  </Link>
+                  <Link href="/dashboard/jobs/create">Post a New Job</Link>
                 </Button>
               </div>
             </div>
